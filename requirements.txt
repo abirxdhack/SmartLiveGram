@@ -1,4 +1,3 @@
-pyrofork
-asyncio
-tgcrypto
+telethon
+cryptg
 motor
