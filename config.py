@@ -1,10 +1,8 @@
-#Copyright @ISmartCoder
-#Updates Channel https://t.me/TheSmartProgrammers
-API_ID = YOUR_API_ID_HERE
-API_HASH = "YOUR_API_HASH"
-BOT_TOKEN = "YOUR_BOT_TOKEN"
-OWNER_ID = YOUR_USER_ID
+API_ID = 2040
+API_HASH = "b18441a1ff607e10a989891a5462e627"
+BOT_TOKEN = "877x-sav1tWC6S8"
+OWNER_ID = 7666341631
 IGNORE = []
 REPLY_TARGET = {}
-BAN_REPLY = "**Sorry You're Banned Forever ❌**"
-MONGO_URL = "YOUR_MONGO_URL"
+BAN_REPLY = "Sorry You're Banned Forever ❌"
+MONGO_URL = "mongodb+srv://holBot"
