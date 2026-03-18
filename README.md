@@ -1,180 +1,212 @@
-# SmartLiveGram Bot 
+# SmartLiveGram Bot (Telethon Edition)
 
-![SmartLiveGram Banner](https://img.shields.io/badge/SmartLiveGram-Advanced%20Feedback%20Bot-8A2BE2?style=for-the-badge&logo=telegram&logoColor=white)  
-[![GitHub Repo](https://img.shields.io/badge/GitHub-Repo-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/abirxdhack/SmartLiveGram)  
-[![Updates Channel](https://img.shields.io/badge/Updates-Channel-FF69B4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/TheSmartProgrammers)  
-[![Owner](https://img.shields.io/badge/Owner-%40ISmartCoder-FFD700?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/ISmartCoder)  
-[![Python Version](https://img.shields.io/badge/Python-3.12%2B-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)  
+![SmartLiveGram Banner](https://img.shields.io/badge/SmartLiveGram-Advanced%20Feedback%20Bot-8A2BE2?style=for-the-badge&logo=telegram&logoColor=white)
+[![Updates Channel](https://img.shields.io/badge/Updates-Channel-FF69B4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/TheSmartProgrammers)
+[![Owner](https://img.shields.io/badge/Owner-%40ISmartCoder-FFD700?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/ISmartCoder)
+[![Python Version](https://img.shields.io/badge/Python-3.12%2B-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-00BFFF?style=flat&logo=opensource&logoColor=white)](LICENSE)
 
-✨ **SmartLiveGram** is a sophisticated Telegram feedback bot engineered for seamless user-owner interactions. Inspired by the official [@LivegramBot](https://t.me/LivegramBot), we've cloned and enhanced its core functionalities to deliver a robust, performant solution. Powered by Pyrogram and MongoDB, it excels in private messaging, user management, broadcasting, and analytics. This project is proudly owned and maintained by [@ISmartCoder](https://t.me/ISmartCoder).
+SmartLiveGram is a full-featured Telegram feedback bot — a complete Telethon rewrite of the original Pyrogram version. Powered by Telethon and MongoDB Motor with full async support, group relay, anonymous admin detection, and advanced broadcast analytics.
 
-🔮 Ideal for developers, communities, and enterprises seeking an efficient feedback ecosystem on Telegram.
+---
 
-## 🌟 Features
+## Features
 
-- **Seamless Feedback Forwarding** 📩: Users send messages (text, media, or files) in private chats, which are forwarded to the owner. Replies from the owner are routed back effortlessly.
-- **User Ban/Unban System** 🚫: Command-based moderation (`/ban <user_id>` or `/unban <user_id>`) with custom notifications for banned users.
-- **Broadcast Capabilities** 📢: Effortlessly send messages or forwards to all users via `/send` (reply to a message). Includes delivery tracking for successes, blocks, and totals.
-- **Comprehensive Statistics** 📊: Access detailed user activity insights with `/stats`, covering daily, weekly, monthly, yearly, and total metrics.
-- **Custom Welcome Experience** 👋: Personalized `/start` message with Markdown formatting and inline buttons (e.g., updates channel link).
-- **Ignore List** 🛡️: Optionally ignore specific users to filter out unwanted interactions.
-- **Persistent Database** 🗄️: MongoDB-backed storage for bans, user stats, and activity tracking.
-- **High Scalability** ⚡: Configured for up to 1000 workers to handle high-volume traffic.
-- **Advanced Logging** 📝: Granular logs for monitoring, debugging, and operational insights.
-- **Customizable Responses** 💬: Tailor ban messages and error replies to fit your branding.
-- **Privacy-Focused** 🔒: Secure handling of API credentials and user data, with forward mapping to protect identities.
+- **Seamless Feedback Forwarding** — Users send messages (text, media, files) in private chats. All messages are forwarded to the owner's PM and simultaneously to every registered group.
+- **Group Relay** — When added to a group by the owner, the bot forwards all user PMs into that group as well, enabling multi-channel monitoring.
+- **Group Welcome Message** — Bot instantly sends a welcome message when added to any group.
+- **Admin Reply Routing** — Owner and group admins can reply to forwarded messages; the reply is delivered back to the original user's PM automatically.
+- **Anonymous Admin Support** — Uses MTProto `GetParticipantsRequest` with `ChannelParticipantsAdmins` filter to detect anonymous admins by `admin_rights.anonymous`. Anonymous admin replies are correctly routed without exposing identity.
+- **User Ban/Unban System** — `/ban <user_id>` and `/unban <user_id>` with instant notifications to both owner and the affected user.
+- **Smart Broadcast** — `/send` (reply to any message) broadcasts to all registered users and all registered groups separately, with full delivery analytics.
+- **Detailed Statistics** — `/stats` with daily, weekly, monthly, annual active user counts plus total users and total groups, with inline button.
+- **Custom Welcome Experience** — Personalized `/start` message with inline Updates Channel button.
+- **Ignore List** — Silently skip specific user IDs via `IGNORE` config.
+- **Persistent MongoDB Storage** — Users, groups, bans, and last-active timestamps all tracked in MongoDB. Groups persist across restarts.
+- **Advanced Logging** — Rotating file logs (`botlog.txt`, 50 MB, 10 backups) plus stdout. Telethon internals silenced to ERROR level.
+- **Customizable Ban Reply** — Set `BAN_REPLY` in `config.py`.
+- **Owner Command Isolation** — `/stats` and `/send` are intercepted before the forwarding pipeline so they are never echoed back to the owner as forwarded messages.
+- **Clean Shutdown** — `KeyboardInterrupt` (Ctrl+C) is caught at the top level outside `asyncio.run()`, producing a clean exit log instead of a traceback.
 
-## 🗂️ Project Structure
+---
 
-The repository is organized modularly for clarity and maintainability:
+## Project Structure
 
 ```
 SmartLiveGram/
-├── utils/                # Utility functions and logging
-│   ├── logging_setup.py  # Custom logging configuration
-│   └── __init__.py       # Package initializer
-├── core/                 # Core logic and database handlers
-│   ├── mongo.py          # MongoDB operations for users and stats
-│   └── __init__.py       # Package initializer
-├── modules/              # Feature modules for handlers
-│   ├── listen.py         # Incoming message processing and forwarding
-│   └── status.py         # Stats, broadcast, and status commands
-├── app.py                # Bot client initialization
-├── main.py               # Main entry point to run the bot
-├── config.py             # Environment variables and configurations
-├── requirements.txt      # Python dependencies
-└── README.md             # Project documentation
+├── utils/
+│   ├── logging_setup.py      # Rotating file + stdout logger
+│   └── __init__.py
+├── core/
+│   ├── mongo.py              # Async MongoDB — users, groups, bans, stats
+│   └── __init__.py
+├── modules/
+│   ├── listen.py             # PM forwarding, owner commands, group reply routing, anon admin
+│   ├── status.py             # /stats, /send broadcast with analytics
+│   ├── group.py              # ChatAction join handler, GROUP_CHAT_IDS shared state
+│   └── __init__.py
+├── app.py                    # TelegramClient (Irene) initialisation
+├── main.py                   # Entry point, handler wiring, clean shutdown
+├── config.py                 # All credentials and settings
+├── requirements.txt
+└── README.md
 ```
 
-## 📋 Requirements
+---
 
-- **Python**: 3.12 or higher 🐍
-- **Telegram API Credentials**: Obtain API_ID, API_HASH, and BOT_TOKEN from [my.telegram.org](https://my.telegram.org/apps)
-- **MongoDB**: A connection URL from [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) (free tier available) or a local instance
-- **Owner ID**: Your Telegram user ID for admin access
+## Configuration
 
-Dependencies are specified in `requirements.txt`, including Pyrogram for Telegram interactions.
+Edit `config.py`:
 
-## ⚙️ Configuration
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `API_ID` | ✅ | Telegram API ID from [my.telegram.org](https://my.telegram.org) |
+| `API_HASH` | ✅ | Telegram API Hash |
+| `BOT_TOKEN` | ✅ | Bot token from [@BotFather](https://t.me/BotFather) |
+| `OWNER_ID` | ✅ | Your Telegram user ID (integer) |
+| `MONGO_URL` | ✅ | MongoDB connection string (Atlas or self-hosted) |
+| `IGNORE` | ❌ | List of user IDs to silently ignore (default `[]`) |
+| `BAN_REPLY` | ❌ | Message sent to banned users |
 
-All settings are managed in `config.py`. Below is an explanation of each variable:
+---
 
-### Mandatory Variables (Required for the Bot to Function)
-- `API_ID`: Your Telegram API ID (integer). *Essential for authenticating the bot client.*
-- `API_HASH`: Your Telegram API hash (string). *Pairs with API_ID for secure access.*
-- `BOT_TOKEN`: The bot's token from [@BotFather](https://t.me/BotFather). *Required to operate as a bot.*
-- `OWNER_ID`: Your Telegram user ID (integer). *Defines the admin for commands like /stats, /send, /ban.*
-- `MONGO_URL`: MongoDB connection string (e.g., `mongodb+srv://user:pass@cluster.mongodb.net/db`). *Stores user data, bans, and stats persistently.*
+## Installation
 
-### Non-Mandatory Variables (Optional with Defaults)
-- `IGNORE`: List of user IDs to ignore (e.g., `[]`). *Default: Empty list. Use to skip processing for specific users.*
-- `REPLY_TARGET`: Dictionary for custom reply mappings (e.g., `{}`). *Default: Empty dict. Currently unused but available for extensions.*
-- `BAN_REPLY`: Custom message for banned users (string, e.g., `"**Sorry You're Banned Forever ❌**"`). *Default provided. Customize for branded responses.*
+```bash
+git clone <repo>
+cd SmartLiveGram
+pip install -r requirements.txt
+```
 
-Edit `config.py` directly or use environment variables for security in production.
+Edit `config.py`, then:
 
-## 🚀 Installation & Deployment
+```bash
+python3 main.py
+```
 
-### Local Development Setup 🔧
+---
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/abirxdhack/SmartLiveGram.git
-   cd SmartLiveGram
-   ```
+## Owner Commands
 
-2. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+| Command | Description |
+|---------|-------------|
+| `/stats` | Bot usage report — active users, groups, totals, with inline button |
+| `/send` | Broadcast (reply to any message) to all users and groups |
+| `/ban <user_id>` | Ban a user — notifies user and confirms to owner |
+| `/unban <user_id>` | Unban a user — notifies user and confirms to owner |
 
-3. Configure `config.py` as detailed above.
+> All commands work only in the owner's private chat with the bot.
 
-4. Run the bot:
-   ```
-   python main.py
-   ```
-   Monitor logs for successful startup.
+---
 
-### VPS Deployment Guide 🌐
+## Stats Output Example
 
-For always-on hosting, deploy on a VPS (e.g., Ubuntu via AWS, DigitalOcean, or Linode). Use `tmux` or `screen` to run in the background.
+```
+🤖 Bot Usage Report:
+━━━━━━━━━━━━━━━━━━━
+ User Engagements:
+- Daily Starts: 30
+- Weekly Starts: 345
+- Monthly Starts: 881
+- Annual Starts: 881
+━━━━━━━━━━━━━━━━━━━
+📈 Total Metrics:
+- Total Groups: 73
+- Users Registered: 982
+```
 
-#### Prerequisites
-- SSH into your VPS.
-- Install essentials:
-  ```
-  sudo apt update && sudo apt install python3 python3-pip git tmux screen -y
-  ```
+## Broadcast Output Example
 
-#### Deployment Steps
-1. Clone and prepare:
-   ```
-   git clone https://github.com/abirxdhack/SmartLiveGram.git
-   cd SmartLiveGram
-   pip3 install -r requirements.txt
-   ```
-   Edit `config.py` (use `nano config.py`).
+```
+Smart Broadcast Successful ✅
+━━━━━━━━━━━━━━━━━━━
+To Users: 81 Users
+Blocked Users: 163 Users
+To Groups: 4 Groups
+Failed Groups: 3 Groups
+Total Chats: 85 Chats
+━━━━━━━━━━━━━━━━━━━
+Smooth Telecast → Activated ✅
+```
 
-2. **Using tmux** (Ideal for session management and multiplexing) 🔄:
-   - Create a session:
-     ```
-     tmux new -s smartlivegram
-     ```
-   - Start the bot:
-     ```
-     python3 main.py
-     ```
-   - Detach: `Ctrl + B` then `D`.
-   - Reattach: `tmux attach -t smartlivegram`.
-   - Terminate: `tmux kill-session -t smartlivegram`.
+---
 
-3. **Using screen** (Simple for detached processes) 🖥️:
-   - Create a session:
-     ```
-     screen -S smartlivegram
-     ```
-   - Start the bot:
-     ```
-     python3 main.py
-     ```
-   - Detach: `Ctrl + A` then `D`.
-   - Reattach: `screen -r smartlivegram`.
-   - Exit: `Ctrl + A` then `K`.
+## VPS Deployment
 
-4. **MongoDB Integration**:
-   - Create a free Atlas cluster.
-   - Whitelist your VPS IP in MongoDB settings.
-   - Update `MONGO_URL` in `config.py`.
+```bash
+# Install dependencies
+sudo apt update && sudo apt install python3 python3-pip git tmux -y
+git clone <repo> && cd SmartLiveGram
+pip3 install -r requirements.txt
 
-5. **Best Practices**:
-   - Use a virtual environment: `python3 -m venv venv && source venv/bin/activate`.
-   - Monitor with `tail -f nohup.out` if using `nohup`.
-   - For auto-restarts, explore systemd services.
+# Run in persistent tmux session
+tmux new -s smartlivegram
+python3 main.py
+# Detach: Ctrl+B then D
+# Reattach: tmux attach -t smartlivegram
+```
 
-## 🔍 Usage Guide
+---
 
-- **User Side**: Send `/start` for a welcome message. Any subsequent private messages forward to the owner.
-- **Owner Commands** (Private chat with bot):
-  - `/stats`: Display user activity statistics.
-  - `/send`: Broadcast by replying to a message.
-  - `/ban <user_id>`: Ban a user (reply to their forwarded message or specify ID).
-  - `/unban <user_id>`: Unban a user.
-- Logs track all events; check console or files for details.
+## Changelog
 
-## 🤝 Contributing
+### v2.3.0 — `feat: isolate owner commands from forwarding pipeline`
+- `/stats` and `/send` are now intercepted before the message forwarding logic in `listen.py` so they are never echoed to the owner as forwarded messages
+- Added `OWNER_COMMANDS` tuple for clean extensibility
 
-We welcome contributions! Fork the repo, create a branch, and submit a pull request. Adhere to Python PEP 8 style. Add tests and document changes. Report issues via GitHub.
+### v2.2.0 — `feat: add anonymous admin reply routing via MTProto participant inspection`
+- Anonymous admin messages (where `sender_id` is `None` and `from_id` is `PeerChannel`/`PeerChat`) are now detected via `_sender_is_anonymous()`
+- `_chat_has_anonymous_admins()` uses `iter_participants` with `ChannelParticipantsAdmins` filter and inspects `admin_rights.anonymous` on each participant
+- Anonymous admin replies to forwarded messages are routed to the original user's PM
 
-## 📜 License
+### v2.1.0 — `feat: broadcast groups separately with per-type delivery analytics`
+- `/send` now broadcasts to users and groups as separate loops
+- Result message shows `To Users`, `Blocked Users`, `To Groups`, `Failed Groups`, `Total Chats`
+- `send_broadcast()` returns 5-tuple instead of 3-tuple
 
-Licensed under the MIT License. See [LICENSE](LICENSE) for details.
+### v2.0.0 — `feat: add group relay, group persistence, and group reply routing`
+- Bot forwards all incoming user PMs to registered groups simultaneously
+- `GROUP_MSG_MAP` tracks forwarded group message IDs for reply routing
+- Group admins (named) can reply to forwarded messages in the group; reply is delivered to original user
+- `GROUP_CHAT_IDS` shared state lives in `group.py` and imported by `listen.py` — single source of truth
+- `ChatAction` handler detects bot being added to a group and sends welcome message
 
-## 💎 Credits & Acknowledgments
+### v1.3.0 — `feat: persist groups to MongoDB and include in stats`
+- `mongo.py` gains `add_group()`, `get_all_groups()`, and `total_groups` in `get_stats()`
+- `group.py` calls `add_group()` on join so groups survive bot restarts
+- `get_all_users()` now explicitly filters `is_group: false`
 
-- **Owner**: [@ISmartCoder](https://t.me/ISmartCoder) 🔱
-- **Inspiration**: Cloned from the official [@LivegramBot](https://t.me/LivegramBot) 🌈
-- **Framework**: Built with [Pyrogram](https://docs.pyrogram.org/) and community libraries.
+### v1.2.0 — `feat: redesign /stats and broadcast output format`
+- `/stats` shows 🤖 Bot Usage Report with daily/weekly/monthly/annual/total/groups breakdown and inline More Info button
+- Broadcast result shows Smart Broadcast Successful with per-type counts
 
-Stay updated via our [Updates Channel](https://t.me/TheSmartProgrammers)! 🚀
+### v1.1.1 — `fix: resolve KeyboardInterrupt traceback on Ctrl+C`
+- Moved `try/except KeyboardInterrupt` outside `asyncio.run()` in `main.py` — asyncio re-raises after the loop stops so inner catches were too late
+
+### v1.1.0 — `fix: unify GROUP_CHAT_IDS to single shared set`
+- Previous version had `GROUP_CHAT_IDS` defined in both `config.py` and `group.py` as separate objects — `listen.py` was reading the always-empty config one
+- Canonical set now lives in `group.py`; `listen.py` imports it directly
+
+### v1.0.1 — `fix: hardcode database name to resolve Motor ConfigurationError`
+- `get_default_database()` raises `ConfigurationError` when Atlas URL has no path-based DB name
+- Replaced with `mongo_client["SmartLiveGram"]` — explicit and reliable
+
+### v1.0.0 — `feat: full rewrite from Pyrogram to Telethon`
+- Replaced `pyrofork` + `asyncio` (redundant stdlib dep) with `telethon` + `tgcrypto`
+- `snigdha` client renamed to `Irene`
+- `filters.private & filters.incoming` replaced with `events.NewMessage(incoming=True, func=lambda e: e.is_private)`
+- `message.forward()` replaced with `Irene.forward_messages()`
+- `message.copy()` replaced with `Irene.send_message(entity, message_object)`
+- `InlineKeyboardMarkup` + `InlineKeyboardButton` replaced with `Button.url()`
+- `Client(workers=1000)` replaced with Telethon's async event loop (no manual worker config needed)
+- Fixed original bug: `update_last_active()` now actually called on every forwarded message
+- Fixed original bug: DB name now hardcoded — no fragile `appName` URL parsing
+
+---
+
+## Credits
+
+- **Owner**: [@ISmartCoder](https://t.me/ISmartCoder)
+- **Framework**: [Telethon](https://github.com/LonamiWebs/Telethon)
+- **Inspiration**: [@LivegramBot](https://t.me/LivegramBot)
+- **Updates**: [t.me/TheSmartProgrammers](https://t.me/TheSmartProgrammers)
