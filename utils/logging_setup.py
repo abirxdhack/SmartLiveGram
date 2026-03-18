@@ -1,12 +1,10 @@
-#Copyright @ISmartCoder
-#Updates Channel https://:t.me/TheSmartProgrammers
 import logging
 from logging.handlers import RotatingFileHandler
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s", 
-    datefmt='%Y-%m-%d %H:%M:%S',  
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
     handlers=[
         RotatingFileHandler(
             "botlog.txt",
@@ -17,7 +15,6 @@ logging.basicConfig(
     ]
 )
 
-logging.getLogger("pyrogram").setLevel(logging.ERROR)
-logging.getLogger("apscheduler").setLevel(logging.ERROR)
+logging.getLogger("telethon").setLevel(logging.ERROR)
 
 LOGGER = logging.getLogger(__name__)
