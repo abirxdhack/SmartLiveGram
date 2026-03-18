@@ -1,21 +1,13 @@
-#Copyright @ISmartCoder
-#Updates Channel https://t.me/TheSmartProgrammers
-from pyrogram import Client
+from telethon import TelegramClient
 from utils import LOGGER
-from config import (
-    API_ID,
-    API_HASH,
-    BOT_TOKEN
-)
+from config import API_ID, API_HASH
 
 LOGGER.info("Creating Bot Client From BOT_TOKEN")
 
-snigdha = Client(
+Irene = TelegramClient(
     "SmartLiveGram",
     api_id=API_ID,
-    api_hash=API_HASH,
-    bot_token=BOT_TOKEN,
-    workers=1000
+    api_hash=API_HASH
 )
 
 LOGGER.info("Bot Client Created Successfully!")
